@@ -1,15 +1,22 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-import {getMessages} from "../store/actions";
+import {deleteMessageById, getMessages, postMessage} from "../store/actions";
 import PostForm from "../components/postForm";
 import Card from "reactstrap/es/Card";
+import {NavLink} from "react-router-dom";
 class MainNews extends Component {
     componentDidMount() {
         this.props.getNews()
     }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.messages !== prevState){
+            this.props.getNews()
+        }
+    }
+
     createMessageHandler = async formData => {
-        await this.props.postMessage(formData)
+        await this.props.postsMessage(formData)
     };
 
     render() {
@@ -24,10 +31,13 @@ class MainNews extends Component {
                         <img src={'http://localhost:1212/uploads/'+mess.image} alt="" style={{height:100,width:100}}/>
 
                         <span>{mess.description}</span>
+                        <NavLink to={`/new/${mess.id}`}>read more</NavLink>
+                        <button onClick={() => {this.props.deleteMess(mess.id)}}>delete</button>
+
                     </Card>
 
                 ))}
-                {console.log(this.props.messages)}
+
             </div>
         );
     }
@@ -38,7 +48,8 @@ const mapStateToProps = state => ({
    comments:state.comments
 });
 const mapDispatchToProps = dispatch => ({
-    postMessage: news => dispatch(postMessage(news)),
-    getNews:() => dispatch(getMessages())
+    postsMessage: news => dispatch(postMessage(news)),
+    getNews:() => dispatch(getMessages()),
+    deleteMess:id => dispatch(deleteMessageById(id))
 });
 export default connect(mapStateToProps,mapDispatchToProps) (MainNews);
